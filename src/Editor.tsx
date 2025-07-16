@@ -21,13 +21,7 @@ const Editor: React.FC = () => {
     } else if (file.name.endsWith('.docx')) {
       const result = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() })
       setValue(result.value)
-      const quill = quillRef.current?.getEditor()
-      if (quill) {
-        const root = quill.root
-        root.setAttribute('dir', 'rtl')
-        root.style.textAlign = 'right'
-      }
-    }
+   }
   }
 
   const handleImportJson = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,34 +36,48 @@ const Editor: React.FC = () => {
       if (keys.length > 0 && typeof json[keys[0]] === 'object') {
         const sections = json[keys[0]] as Record<string, string>
         for (const [title, body] of Object.entries(sections)) {
-          html += `<p></p><h2>${title}</h2><p dir="rtl" style="direction: rtl; text-align: right;">${body}</p>`
+          html += `<p></p><div dir="rtl" style="text-align: right;">
+  <h2>${title}</h2>
+  <p>${body}</p>
+</div>`
+
         }
       }
 
       if (keys.length > 1 && typeof json[keys[1]] === 'object') {
-        const tableData = json[keys[1]] as Record<string, Record<string, string>>
-        const rows = Object.entries(tableData)
+        const tableData = json[keys[1]] as Record<string, Record<string, string>>;
+        const rows = Object.entries(tableData);
+
         if (rows.length > 0) {
-          let headers = Object.keys(rows[0][1])
+          let headers = Object.keys(rows[0][1]);
           if (headers.length === 1) {
             headers = headers[0]
-              .replace(/\r?\n/g, ' ')
-              .split(/\s{2,}|,|\t+/)
-              .filter((h) => h)
+                .replace(/\r?\n/g, ' ')
+                .split(/\s{2,}|,|\t+/)
+                .map((h) => h.trim())
+                .filter((h) => h);
           }
-          html += '<table border="1"><thead><tr><th></th>'
+
+          html += `<div dir="rtl" style="direction: rtl; text-align: right;">`;
+          html += `<table dir="rtl" style="border-collapse: collapse; width: auto; direction: rtl; text-align: right;">`;
+
+          // Header row
+          html += `<thead><tr><td style="white-space: nowrap; padding: 2px;">שורה</td>`;
           for (const h of headers) {
-            html += `<th>${h}</th>`
+            html += `<td class="tight-cell">${h}</td>`;
           }
-          html += '</tr></thead><tbody>'
+          html += `</tr></thead>`;
+
+          // Body rows
+          html += `<tbody>`;
           for (const [rowName, row] of rows) {
-            html += `<tr><td>${rowName}</td>`
+            html += `<tr><td style="white-space: nowrap; padding: 2px;">${rowName}</td>`;
             for (const h of headers) {
-              html += `<td>${row[h] ?? ''}</td>`
+              html += `<td style="white-space: nowrap; padding: 2px;">${row[h] ?? ''}</td>`;
             }
-            html += '</tr>'
+            html += `</tr>`;
           }
-          html += '</tbody></table>'
+          html += `</tbody></table></div>`;
         }
       }
 
