@@ -57,15 +57,9 @@ const Editor: React.FC = () => {
     imageInputRef.current?.click()
   }
 
-  const handleExport = () => {
-    const html = `<html><head></head><body>${value}</body></html>`
-    const blob = htmlDocx.asBlob(html)
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = 'document.docx'
-    link.click()
-    URL.revokeObjectURL(link.href)
-  }
+  const handleExport = async () => {
+  };
+
 
   const toggleRTL = () => {
     const quill = quillRef.current?.getEditor()
