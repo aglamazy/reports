@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
-import htmlDocx from 'html-docx-js/dist/html-docx'
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import htmlDocx from 'html-docx-js-typescript';
 import * as mammoth from 'mammoth/mammoth.browser'
 import "./editor.css"
 
