@@ -28,7 +28,43 @@ const Editor: React.FC = () => {
     const file = e.target.files?.[0]
     if (!file) return
     const text = await file.text()
-    setValue(text)
+    try {
+      const json = JSON.parse(text)
+      const keys = Object.keys(json)
+      let html = ''
+
+      if (keys.length > 0 && typeof json[keys[0]] === 'object') {
+        const sections = json[keys[0]] as Record<string, string>
+        for (const [title, body] of Object.entries(sections)) {
+          html += `<h2>${title}</h2><p>${body}</p>`
+        }
+      }
+
+      if (keys.length > 1 && typeof json[keys[1]] === 'object') {
+        const tableData = json[keys[1]] as Record<string, Record<string, string>>
+        const rows = Object.entries(tableData)
+        if (rows.length > 0) {
+          const headers = Object.keys(rows[0][1])
+          html += '<table border="1"><thead><tr><th></th>'
+          for (const h of headers) {
+            html += `<th>${h}</th>`
+          }
+          html += '</tr></thead><tbody>'
+          for (const [rowName, row] of rows) {
+            html += `<tr><td>${rowName}</td>`
+            for (const h of headers) {
+              html += `<td>${row[h] ?? ''}</td>`
+            }
+            html += '</tr>'
+          }
+          html += '</tbody></table>'
+        }
+      }
+
+      setValue(html)
+    } catch {
+      setValue(text)
+    }
   }
 
   const handleInsertImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +94,13 @@ const Editor: React.FC = () => {
   }
 
   const handleExport = async () => {
+    const html = `<html><head><meta charset="utf-8"></head><body>${value}</body></html>`
+    const blob = htmlDocx.asBlob(html)
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = 'document.docx'
+    link.click()
+    URL.revokeObjectURL(link.href)
   };
 
 
