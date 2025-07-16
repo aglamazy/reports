@@ -21,6 +21,12 @@ const Editor: React.FC = () => {
     } else if (file.name.endsWith('.docx')) {
       const result = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() })
       setValue(result.value)
+      const quill = quillRef.current?.getEditor()
+      if (quill) {
+        const root = quill.root
+        root.setAttribute('dir', 'rtl')
+        root.style.textAlign = 'right'
+      }
     }
   }
 
