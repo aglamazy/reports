@@ -36,7 +36,7 @@ const Editor: React.FC = () => {
       if (keys.length > 0 && typeof json[keys[0]] === 'object') {
         const sections = json[keys[0]] as Record<string, string>
         for (const [title, body] of Object.entries(sections)) {
-          html += `<h2>${title}</h2><p>${body}</p>`
+          html += `<p></p><h2>${title}</h2><p dir="rtl" style="direction: rtl; text-align: right;">${body}</p>`
         }
       }
 
@@ -44,7 +44,13 @@ const Editor: React.FC = () => {
         const tableData = json[keys[1]] as Record<string, Record<string, string>>
         const rows = Object.entries(tableData)
         if (rows.length > 0) {
-          const headers = Object.keys(rows[0][1])
+          let headers = Object.keys(rows[0][1])
+          if (headers.length === 1) {
+            headers = headers[0]
+              .replace(/\r?\n/g, ' ')
+              .split(/\s{2,}|,|\t+/)
+              .filter((h) => h)
+          }
           html += '<table border="1"><thead><tr><th></th>'
           for (const h of headers) {
             html += `<th>${h}</th>`
