@@ -116,12 +116,38 @@ const Editor: React.FC = () => {
   const handleExport = async () => {
     const html = `<html><head><meta charset="utf-8"></head><body>${value}</body></html>`
     const blob = htmlDocx.asBlob(html)
+
+    if ('showSaveFilePicker' in window) {
+      try {
+        const opts = {
+          suggestedName: 'document.docx',
+          types: [
+            {
+              description: 'Word Document',
+              accept: {
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+              },
+            },
+          ],
+        }
+        // @ts-expect-error showSaveFilePicker is still experimental
+        const handle = await window.showSaveFilePicker(opts)
+        const writable = await handle.createWritable()
+        await writable.write(blob)
+        await writable.close()
+        return
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    const name = prompt('File name', 'document.docx') || 'document.docx'
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = 'document.docx'
+    link.download = name.endsWith('.docx') ? name : `${name}.docx`
     link.click()
     URL.revokeObjectURL(link.href)
-  };
+  }
 
 
   const toggleRTL = () => {
